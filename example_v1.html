@@ -7,6 +7,7 @@
   
 <script>
 const COMPONENTS = [];
+
 const ASSETS = {
 	title: 'Unreal World Engine',
 	lang: 'en-us',
@@ -15,41 +16,20 @@ const ASSETS = {
 	fontAwesome: '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">',
 	jquery: '<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"><\/script>',
 	bs: {
-		bs4: [
+		bs4: {
 			css: ['<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">'],
 			js: ['<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"><\/script>'],
-		],
-		bs5: [
+		},
+		bs5: {
 			css: ['<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">'],
-			js: ['<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"><\/script>'],
-		]
+			js: ['<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"><\/script>']
+		}
 
-	}
-	style: `
-    <style>
-     * {
-         box-sizing: border-box;
-     }
-     html, body {
-         width: 100% !important;
-         height: 100% !important;
-     }
-     
-     @media (min-width: 576px) {
-         .col-sm-4.col_fixed_4 {
-             max-width: 250px !important;
-         }
-         
-     }
-    
-     .min_xy_250px {
-         min-width: 250px !important;
-         min-height: 250px !important;
-         overflow: auto !important;
-     }
-    </style>`
+	},
+	strictSizingStyle: '<style> * { box-sizing: border-box; } html, body { width: 100% !important; height: 100% !important; } <\/style>',
+	style: '<style> @media (min-width: 576px) { .col-sm-4.bs4_col_fixed_4 { max-width: 250px !important; } } <\/style>'
 };
-const app = {
+const appJSON = {
 	appId: 'app',
 	url: '/index',
 	title: 'Unreal World',
@@ -145,24 +125,98 @@ const app = {
 		{}
 	]
 };
-class Container {
-	static defaultBsVersion = 'bs4';
-	constructor(configObj) {
+
+class Helpers {
+    static validateOrThrow(check, exception, error) {
+        if (!check) {
+            const exceptionName = (typeof(exception) === 'string' && exception.trim() !== '') ? exception.trim() : 'Unkown Exception';
+            const errorMessage = (typeof(message) === 'string' && message.trim() !== '') ? message.trim() : 'Unkown Error';
+            throw `${exceptionName}:${errorMessage}`;
+        }
+    }
+    static isId(id) {
+        return (((typeof(id) === 'string') && id.trim() && id.match(/^[a-z_]/)) ? true : false);
+    }
+    static isNotEmpty(str) {
+        return (((typeof(str) === 'string') && str.trim() !== '') ? true : false);
+    }
+    static isStrOrNull(str) {
+        return (((str === null) || (str && (str.trim() !== ''))) ? true : false);
+    }
+    static isBoolOrNull(bool) {
+        return (((str === bool) || (typeof(bool) === 'boolean')) ? true : false);
+    }
+}
+class App {
+    constructor(appId, url, title=null, titleZIndex=-1, description='Unreal World Engine - Web Games for All Devices.', lang='en', bs='bs4') {
+    }
+}    
+
+class HTMLContainer {
+	constructor(id, display, title, titleZIndex, nav, lang, type, defaultZIndex) {
 		this.defaultBsVersion = this.allowedSizings.includes(Container.defaultBsVersion) ? Container.defaultBsVersion : 'bs4';
 	}
 	get allowedSizings() {
 		return ['bs4', 'bs3', 'bs5', 'precentage', 'px'];
 	}
+    get _titleZIndex() {
+        return defaultZIndex;
+    }
+}            
+
+class View extends HTMLContainer {
+    constructor(id, display=false, title=null, titleZIndex=-1, nav=null, lang='en', type='view', defaultZIndex=1) {
+        super(id, display, title, titleZIndex, nav, lang, type, defaultZIndex);
+    }
 }
-class Component extends Container {
-	constructor(configObj = {}) {
-		super(configObj);
+
+class Block extends HTMLContainer {
+	constructor(id, display=false, title=null, titleZIndex=-1, nav=null, lang='en', type='view', defaultZIndex=2) {
+		super(id, display, title, titleZIndex, nav, lang, type, defaultZIndex);
 	}
 }
-class Block extends Container {
-	constructor(configObj = {}) {
-		super(configObj);
+
+class Component extends HTMLContainer {
+	constructor(id, display=false, title=null, titleZIndex=-1, nav=null, lang='en', type='component', defaultZIndex=3) {
+		super(id, display, title, titleZIndex, nav, lang, type, defaultZIndex);
 	}
+}
+
+class NavAPI {
+    static ITEMS_TYPES = ['view', 'block', 'component', 'slide', 'url', 'logo'];
+    constructor(app) {
+        this.validate(app);
+    }
+    validate(app) {
+        Helpers.validateOrThrow((app.constructor === App), 'NavAPI', 'required valid app object');
+    }
+}
+
+class Nav {
+    constructor(htmlContainer, id, items=[]) {
+        this.validate(htmlContainer, id, items);
+    }
+    validate(htmlContainer, id, items) {
+        Helpers.validateOrThrow((htmlContainer instanceof HTMLContainer), 'NavAPI', 'required valid htmlContainer HTMLContainer');
+        Helpers.validateOrThrow(Helpers.isId(id), 'NavAPI', 'required valid nav id String');
+        Helpers.validateOrThrow((Array.isArray(items) && (items.length > 0)), 'NavAPI', 'required not empty items Array');
+    }
+}
+
+class NavItem {
+    constructor(id, target, targetType, placeholder, active, text, targets=[], nextTitle=null) {
+        this.validate(id, target, targetType, placeholder, active, text, targets, nextTitle);
+    }
+    validate(id, target, targetType, placeholder, active, text, targets, nextTitle) {
+        Helpers.validateOrThrow(Helpers.isId(id), 'NavItem', 'invalid id');
+        Helpers.validateOrThrow(Helpers.isId(target), 'NavItem', 'invalid target');
+        Helpers.validateOrThrow(NavAPI.ITEMS_TYPES.includes(targetType), 'NavItem', 'invalid targetType');
+        Helpers.validateOrThrow(Helpers.isStrOrNull(placeholder), 'NavItem', 'invalid placeholder');
+        Helpers.validateOrThrow(Helpers.isBoolOrNull(active), 'NavAPI', 'invalid active');
+        Helpers.validateOrThrow(Helpers.isNotEmpty(text), 'NavItem', 'invalid text');
+        Helpers.validateOrThrow(Array.isArray(targets), 'NavItem', 'invalid targets');
+        Helpers.validateOrThrow(Helpers.isStrOrNull(nextTitle), 'NavItem', 'invalid nextTitle');
+    }
 }
 </script>
 
